@@ -1,0 +1,204 @@
+openapi: 3.0.3
+info:
+  title: Books Catalogue API
+  version: 1.0.0
+  description: REST API for managing and searching books in the catalog.
+
+servers:
+  - url: http://localhost:8081/api/catalogue
+    description: Local server for the catalogue microservice
+
+paths:
+  /books:
+    get:
+      summary: Retrieve all books or filter by attributes
+      parameters:
+        - in: query
+          name: title
+          schema: { type: string }
+          description: Filter by book title
+        - in: query
+          name: author
+          schema: { type: string }
+          description: Filter by author name
+        - in: query
+          name: year
+          schema: { type: integer }
+          description: Filter by publication year
+        - in: query
+          name: genre
+          schema: { type: string }
+          description: Filter by genre
+        - in: query
+          name: isbn
+          schema: { type: string }
+          description: Filter by ISBN code
+        - in: query
+          name: rating
+          schema: 
+            type: integer
+            minimum: 1
+            maximum: 5
+          description: Filter by rating (1 to 5)
+        - in: query
+          name: visible
+          schema: { type: boolean }
+          description: Filter by visibility status
+      responses:
+        '200':
+          description: List of books matching the filters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+
+    post:
+      summary: Create a new book entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '201':
+          description: Book successfully created
+
+  /books/{id}:
+    get:
+      summary: Retrieve a book by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Book found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+
+    put:
+      summary: Fully replace an existing book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '200':
+          description: Book successfully updated
+
+    patch:
+      summary: Partially update an existing book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookPartial'
+      responses:
+        '200':
+          description: Book partially updated
+
+    delete:
+      summary: Delete a book by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Book successfully deleted
+
+components:
+  schemas:
+    Book:
+      type: object
+      required:
+        - id
+        - title
+        - author
+        - price
+        - year
+        - genre
+        - pages
+        - isbn
+        - rating
+        - visible
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+        price:
+          type: number
+          format: float
+        description:
+          type: string
+        coverImage:
+          type: string
+        year:
+          type: integer
+        genre:
+          type: string
+        pages:
+          type: integer
+        isbn:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        visible:
+          type: boolean
+
+    BookPartial:
+      type: object
+      properties:
+        title:
+          type: string
+        author:
+          type: string
+        price:
+          type: number
+        description:
+          type: string
+        coverImage:
+          type: string
+        year:
+          type: integer
+        genre:
+          type: string
+        pages:
+          type: integer
+        isbn:
+          type: string
+        rating:
+          type: integer
+        visible:
+          type: boolean

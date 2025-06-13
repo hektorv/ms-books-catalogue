@@ -73,7 +73,8 @@ public class BookController implements BooksApi {
         return ResponseEntity.noContent().build();
     }
     
-        @Override
+    @Override
+    @PostMapping("/stock")
     public ResponseEntity<Void> updateStockBulk(List<StockUpdateRequest> updates) {
         bookService.updateStocks(updates);
         return ResponseEntity.noContent().build();

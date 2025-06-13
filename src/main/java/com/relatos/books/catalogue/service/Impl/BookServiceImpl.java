@@ -13,6 +13,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import com.relatos.books.catalogue.dto.CreateBookRequest;
+import com.relatos.books.catalogue.dto.StockUpdateRequest;
+import com.relatos.books.catalogue.exception.BookNotFoundException;
+import com.relatos.books.catalogue.exception.InvalidStockException;
 import com.relatos.books.catalogue.model.Book;
 import com.relatos.books.catalogue.model.BookSearchCriteria;
 import com.relatos.books.catalogue.persistence.BookEntity;
@@ -20,7 +23,7 @@ import com.relatos.books.catalogue.persistence.BookRepository;
 import com.relatos.books.catalogue.persistence.BookSpecification;
 import com.relatos.books.catalogue.service.BookService;
 
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,6 +49,7 @@ public class BookServiceImpl implements BookService{
                 .isbn(book.getIsbn())
                 .rating(book.getRating())
                 .visible(book.getVisible())
+                .stock(book.getStock())
                 .build();;
         BookEntity saved = bookRepository.save(entity);
         return toModel(saved);
@@ -62,7 +66,7 @@ public class BookServiceImpl implements BookService{
         Long bookId = parseId(id);
         Optional<BookEntity> found = bookRepository.findById(bookId);
         if(!found.isPresent()){
-            return Optional.empty();
+            throw new BookNotFoundException(bookId);
         }
         BookEntity updated = this.toEntity(book);
         updated.setId(bookId);
@@ -74,7 +78,7 @@ public class BookServiceImpl implements BookService{
         Long bookId = parseId(id);
         Optional<BookEntity> found = bookRepository.findById(bookId);
         if(!found.isPresent()){
-            return Optional.empty();
+            throw new BookNotFoundException(bookId);
         }        
         Book book = toModel(found.get());
         try {
@@ -110,23 +114,6 @@ public class BookServiceImpl implements BookService{
         }
     }
     
-    private BookEntity toNewEntity(Book book) {
-        return BookEntity.builder()
-                .id(book.getId()) // solo si no es null o si permites actualización
-                .title(book.getTitle())
-                .author(book.getAuthor())
-                .price(book.getPrice())
-                .description(book.getDescription())
-                .coverImage(book.getCoverImage())
-                .category(book.getCategory())
-                .publishYear(book.getPublishYear())
-                .genre(book.getGenre())
-                .pages(book.getPages())
-                .isbn(book.getIsbn())
-                .rating(book.getRating())
-                .visible(book.getVisible())
-                .build();
-    }
     private BookEntity toEntity(Book book) {
         return BookEntity.builder()
                 .id(book.getId()) // solo si no es null o si permites actualización
@@ -142,6 +129,7 @@ public class BookServiceImpl implements BookService{
                 .isbn(book.getIsbn())
                 .rating(book.getRating())
                 .visible(book.getVisible())
+                .stock(book.getStock())
                 .build();
     }
     private Book toModel(BookEntity entity) {
@@ -159,7 +147,30 @@ public class BookServiceImpl implements BookService{
                 .isbn(entity.getIsbn())
                 .rating(entity.getRating())
                 .visible(entity.getVisible())
+                .stock(entity.getStock())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void updateStocks(List<StockUpdateRequest> updates) {
+        for (var update : updates) {
+            BookEntity book = bookRepository.findById(update.getBookId())
+                .orElseThrow(() -> new BookNotFoundException(update.getBookId()));
+
+            if (!book.getVisible()) {
+                throw new InvalidStockException("Book is hidden: " + update.getBookId());
+            }
+
+            int newStock = book.getStock() + update.getVariation();
+
+            if (newStock < 0) {
+                throw new InvalidStockException("Insufficient stock for book: " + update.getBookId());
+            }
+
+            book.setStock(newStock);
+            bookRepository.save(book);
+        }
     }
 
 

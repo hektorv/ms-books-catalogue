@@ -23,4 +23,5 @@ public class Book {
     private String isbn;
     private Integer rating;
     private Boolean visible;
+    private Integer stock;
 }

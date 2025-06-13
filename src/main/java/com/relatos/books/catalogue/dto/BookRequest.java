@@ -70,5 +70,7 @@ public class BookRequest{
     @Schema(description = "Indica si el libro es visible", example = "true")
     private Boolean visible;
 
-
+    @NotNull
+    @Schema(description = "Indica el número de existencias de libros", example = "10")
+    private Integer stock;
 }

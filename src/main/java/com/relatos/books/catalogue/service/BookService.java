@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import com.relatos.books.catalogue.dto.CreateBookRequest;
+import com.relatos.books.catalogue.dto.StockUpdateRequest;
 import com.relatos.books.catalogue.model.Book;
 import com.relatos.books.catalogue.model.BookSearchCriteria;
 
@@ -21,6 +22,8 @@ public interface BookService {
     void deleteBook(String id);
 
     List<Book> searchBooks(BookSearchCriteria params, Pageable pageable);
+
+    void updateStocks(List<StockUpdateRequest> updates);
 
 
 

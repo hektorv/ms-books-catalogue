@@ -2,6 +2,7 @@ package com.relatos.books.catalogue.controller;
 
 import com.relatos.books.catalogue.dto.BookSearchParameters;
 import com.relatos.books.catalogue.dto.CreateBookRequest;
+import com.relatos.books.catalogue.dto.StockUpdateRequest;
 import com.relatos.books.catalogue.model.Book;
 import com.relatos.books.catalogue.model.BookSearchCriteria;
 import com.relatos.books.catalogue.service.BookService;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +20,7 @@ import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/books")
+@RequestMapping("/api/books")
 @RequiredArgsConstructor
 public class BookController implements BooksApi {
 
@@ -73,10 +73,20 @@ public class BookController implements BooksApi {
         return ResponseEntity.noContent().build();
     }
     
+        @Override
+    public ResponseEntity<Void> updateStockBulk(List<StockUpdateRequest> updates) {
+        bookService.updateStocks(updates);
+        return ResponseEntity.noContent().build();
+    }
+
+    
     @Mapper
     public interface BooksMapper{
         BookSearchCriteria fromParams(BookSearchParameters params);
        
     }
+
+
+
 
 }

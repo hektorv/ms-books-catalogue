@@ -2,6 +2,7 @@ package com.relatos.books.catalogue.controller;
 
 import com.relatos.books.catalogue.dto.BookSearchParameters;
 import com.relatos.books.catalogue.dto.CreateBookRequest;
+import com.relatos.books.catalogue.dto.StockUpdateRequest;
 import com.relatos.books.catalogue.model.Book;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -87,4 +88,17 @@ public interface BooksApi {
     ResponseEntity<Void> deleteBook(
         @Parameter(description = "ID del libro") @PathVariable String id
     );
+
+    @PatchMapping("/stock")
+    @ApiResponses({
+        @ApiResponse(responseCode = "404", description = "Libro no encontrado"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor"),
+        @ApiResponse(responseCode = "200", description = "Libro parcialmente actualizado")
+    })
+    public ResponseEntity<Void> updateStockBulk(
+        @Parameter(description = "Lista de variaciones en el stock")     
+        
+        @RequestBody List<StockUpdateRequest> updates
+    );
+
 }

@@ -41,4 +41,5 @@ public class BookEntity {
     private String isbn;
     private Integer rating;
     private Boolean visible;
+    private Integer stock;
 }

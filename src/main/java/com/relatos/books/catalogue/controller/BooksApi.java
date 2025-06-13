@@ -89,7 +89,7 @@ public interface BooksApi {
         @Parameter(description = "ID del libro") @PathVariable String id
     );
 
-    @PatchMapping("/stock")
+    @PostMapping("/stock")
     @ApiResponses({
         @ApiResponse(responseCode = "404", description = "Libro no encontrado"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor"),
